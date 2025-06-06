@@ -1,5 +1,4 @@
 attention_mask.pt
 input_ids.pt
-
 bert-fake-news-model/
 results/
