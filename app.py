@@ -3,6 +3,7 @@ import torch, torch.nn.functional as F
 from transformers import BertTokenizer, BertForSequenceClassification
 import sys, asyncio
 from huggingface_hub import snapshot_download
+import os
 
 if sys.platform.startswith("win") and sys.version_info >= (3, 11):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -52,11 +53,15 @@ input:focus,textarea:focus{border-color:#6b5bff !important;}
 
 @st.cache_resource
 def load_model():
-    repo_id = "mikieoo/fake-news-bert"
-    cache_dir = "./hf_models"           
-    local_path = snapshot_download(repo_id, cache_dir=cache_dir, revision="main")
+    token = st.secrets["HF_TOKEN"]
+    local_path = snapshot_download(
+        repo_id="mikieoo/fake-news-bert",
+        cache_dir="./hf_models", 
+        revision="main",
+        use_auth_token=token
+    )
     tokenizer = BertTokenizer.from_pretrained(local_path)
-    model     = BertForSequenceClassification.from_pretrained(local_path)
+    model = BertForSequenceClassification.from_pretrained(local_path)
     model.eval()
     return tokenizer, model
 
