@@ -1,13 +1,16 @@
 import streamlit as st
-import torch, torch.nn.functional as F
+import torch
+import torch.nn.functional as F
 from transformers import BertTokenizer, BertForSequenceClassification
 import sys, asyncio
 from huggingface_hub import snapshot_download
 import os
 
+# Windows에서 asyncio 이벤트 루프 정책 설정
 if sys.platform.startswith("win") and sys.version_info >= (3, 11):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+# 스타일 적용
 st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -56,17 +59,19 @@ def load_model():
     token = st.secrets["HF_TOKEN"]
     local_path = snapshot_download(
         repo_id="mikieoo/fake-news-bert",
-        cache_dir="./hf_models", 
+        cache_dir="./hf_models",
         revision="main",
-        use_auth_token=token
+        token=token
     )
     tokenizer = BertTokenizer.from_pretrained(local_path)
     model = BertForSequenceClassification.from_pretrained(local_path)
     model.eval()
     return tokenizer, model
 
+# 모델 로드
 tokenizer, model = load_model()
 
+# UI 구성
 st.markdown('<div class="main-wrap">', unsafe_allow_html=True)
 
 st.markdown("<h1><i class='fa-solid fa-newspaper'></i>&nbsp; Fake&nbsp;News&nbsp;Classifier</h1>", unsafe_allow_html=True)
@@ -80,9 +85,12 @@ st.markdown("<div class='field-header'>✓&nbsp;&nbsp;&nbsp;기사 제목</div>"
 title = st.text_input(label="기사 제목 입력", placeholder="예) NASA confirms …", label_visibility="collapsed")
 
 st.markdown("<div class='field-header'>✓&nbsp;&nbsp;&nbsp;기사 본문</div>", unsafe_allow_html=True)
-text  = st.text_area(label="기사 본문 입력", height=260,
-                    placeholder="여기에 뉴스 기사 전문을 붙여 넣으세요…",
-                    label_visibility="collapsed")
+text = st.text_area(
+    label="기사 본문 입력",
+    height=260,
+    placeholder="여기에 뉴스 기사 전문을 붙여 넣으세요…",
+    label_visibility="collapsed"
+)
 
 if st.button("예측하기", key="predict"):
     if not title or not text:
@@ -99,7 +107,7 @@ if st.button("예측하기", key="predict"):
         confidence = max(fake_p, real_p) * 100
 
         headline = "가짜 뉴스 기사입니다." if is_fake else "진짜 뉴스 기사입니다."
-        color = "#f03e3e" if is_fake else "#20c997"          
+        color = "#f03e3e" if is_fake else "#20c997"
 
         st.subheader("예측 결과")
         st.markdown(
