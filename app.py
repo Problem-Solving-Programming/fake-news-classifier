@@ -57,12 +57,14 @@ input:focus,textarea:focus{border-color:#6b5bff !important;}
 @st.cache_resource
 def load_model():
     token = st.secrets["HF_TOKEN"]
+    st.write("🔄 모델 다운로드 시작 중...")
     local_path = snapshot_download(
         repo_id="mikieoo/fake-news-bert",
         cache_dir="./hf_models",
         revision="main",
         token=token
     )
+    st.write("✅ 모델 다운로드 완료")
     tokenizer = BertTokenizer.from_pretrained(local_path)
     model = BertForSequenceClassification.from_pretrained(local_path)
     model.eval()
