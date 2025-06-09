@@ -51,7 +51,7 @@ input:focus,textarea:focus{border-color:#6b5bff !important;}
 
 @st.cache_resource
 def load_model():
-    tok = BertTokenizer.from_pretrained("bert-base-uncased")
+    tok = BertTokenizer.from_pretrained("./bert-fake-news-model")  
     mdl = BertForSequenceClassification.from_pretrained("./bert-fake-news-model")
     mdl.eval()
     return tok, mdl
